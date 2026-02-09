@@ -1,29 +1,59 @@
-# Concepts de CDS Views
+# CDS Views
 
-Les CDS Views (Core Data Services) sont des définitions de modèles de données qui permettent aux développeurs de créer des vues sur des tables de base de données dans un environnement SAP. Elles permettent de simplifier la création de requêtes complexes tout en offrant des fonctionnalités avancées pour l'analyse des données.
+## Definition
+Core Data Services (CDS) views are a data modeling infrastructure provided by SAP to define semantic data models at the database level. CDS views allow developers to define views on the underlying data model that can be consumed by various applications. 
 
-## Avantages des CDS Views
-- **Réutilisabilité** : Les CDS Views peuvent être réutilisées par d'autres développements, réduisant ainsi le temps de développement.
-- **Performance** : Grâce à leur définition au niveau de la base de données, elles peuvent optimiser les performances des requêtes.
-- **Sécurité** : Les CDS Views permettent de gérer les habilitations et la sécurité des données de manière centralisée.
+## Types
+1. **Basic CDS Views**: These are derived from one or more database tables or other views and do not include any complex processing.
+2. **Composite CDS Views**: These are built on top of basic CDS views and can include additional logic, such as joins, aggregations, and filtering.
+3. **Consumption CDS Views**: These views are optimized for consumption in UI applications, often used to expose data to Fiori apps.
 
-## Types de CDS Views
-1. **CDS Views de base** : Représentent des tables de données de manière simple.
-2. **CDS Views enrichies** : Permettent de calculer des champs supplémentaires et d'incorporer des jointures avec d'autres tables.
-
-## Exemple de syntaxe
-Voici un exemple simple de création d'une CDS View :
+## Syntax
+The basic syntax for defining a CDS view is:
 ```sql
-@AbapCatalog.sqlViewName: 'ZCDS_VIEW'
-@AbapCatalog.compilerCompare: true
-@EndUserText.label: 'Exemple de CDS View'
-define view ZCDS_VIEW as select from ZTABLE
-{
-    key field1,
-    field2,
-    field3
+define view <ViewName> as select from <TableName> {
+    <Field1>,
+    <Field2>,
+    ...
 }
 ```
 
-## Conclusion
-Les CDS Views sont un outil puissant dans le développement SAP, fournissant une approche robuste pour la gestion et l'accès aux données.
+## Joins
+Joins in CDS views can be performed via the `join` keyword. Here is an example:
+```sql
+define view ZProductSales as select from ZProduct as Product
+    join ZSales as Sales on Product.ProductID = Sales.ProductID {
+    Product.ProductName,
+    Sales.QuantitySold
+}
+```
+
+## Expressions
+CDS views support various expressions, including:
+- **Arithmetic Expressions**: e.g., `Sales.TotalAmount - Sales.Discount`
+- **Conditional Expressions (CASE)**: e.g., `case when Sales.Quantity > 0 then 'In Stock' else 'Out of Stock' end as StockStatus`
+
+## Annotations
+CDS annotations provide additional metadata and are defined using the `@` symbol. Example:
+```sql
+@AbapCatalog.viewEnhancement: {  }
+@EndUserText.label: 'Sales Data View'
+define view ZSalesData as select from ZSales {
+    Sales.ProductID,
+    Sales.QuantitySold
+}
+```
+
+## Complete Examples
+```sql
+define view ZCompleteExample as select from ZSales as Sales
+    join ZProduct as Product on Sales.ProductID = Product.ProductID
+    join ZCustomer as Customer on Sales.CustomerID = Customer.CustomerID {
+    Product.ProductName,
+    Customer.CustomerName,
+    Sales.QuantitySold,
+    case when Sales.QuantitySold > 100 then 'High Demand' else 'Normal Demand' end as DemandStatus
+}
+```
+
+This example illustrates the power of CDS views to create complex queries using joins, expressions, and annotations, making it easier to handle complex business logic directly in the database layer.
