@@ -1,69 +1,39 @@
-# Complete Guide on CDS Views with Input Parameters
+# Les CDS Views avec Paramètres
 
-## Introduction to Parameters and Use Cases
-CDS (Core Data Services) Views allow developers to define semantic layers on top of database tables and view their data in a structured way. Parameters enhance the usability of CDS Views by allowing dynamic data retrieval based on user input. Use cases include filtering records, controlling output formats, and enhancing report efficiency.
+Les CDS Views (Core Data Services Views) sont une technologie essentielle dans SAP qui permet de définir des modèles de données et d'extraire des données de manière efficace. Lorsqu'il s'agit de créer des CDS Views avec des paramètres, cela ajoute une flexibilité considérable à la manière dont les données peuvent être filtrées et affichées.
 
-## Parameter Types
-- **Simple Parameters**: Accept a single value provided by the user.
-- **Multiple Parameters**: Accept a set of values which can be utilized for filtering data.
+## Qu'est-ce qu'un paramètre dans une CDS View?
 
-## Parameter Data Typing
-CDS Views support various data types for parameters including:
-- **String**: Alphanumeric data.
-- **Int64**: 64-bit integer values.
-- **Decimal**: Numeric values with decimal points.
-- **Date**: Represents calendar dates.
-- **Time**: Represents time of day.
-- **Boolean**: True/False values.
-- **UUID**: Universally Unique Identifier.
+Un paramètre dans une CDS View est une variable qui peut être utilisée pour filtrer les résultats de la vue en fonction de la valeur fournie à l'exécution. Cela permet aux utilisateurs de saisir des valeurs spécifiques lors de l'exécution d'une requête, offrant ainsi une personnalisation dynamique des données affichées.
 
-## Accessing Parameters with $parameters Syntax
-Parameters can be accessed in your CDS View using the `$parameters` syntax. For example:
+## Comment créer une CDS View avec des paramètres?
+
+1. **Définir la vue** : Commencez par définir votre CDS View de base.
+   ```abap
+   @AbapCatalog.sqlViewName: 'ZCDS_PARAM'
+   define view ZCDS_View_Parameters
+   with parameters
+       p_param1 : abap.int4
+   as select from your_table
+   where field_name = :p_param1;
+   ```
+
+2. **Utiliser des paramètres** : Dans l'exemple ci-dessus, `p_param1` est un paramètre que vous pouvez passer à votre CDS View afin de filtrer les résultats en fonction de la valeur souhaitée.
+
+## Exécuter la CDS View avec des paramètres
+
+Lors de l'exécution de la CDS View, vous serez invité à fournir une valeur pour le paramètre. Il vous suffit de saisir cette valeur, et la vue renverra les résultats filtrés.
+
+## Conclusion
+
+Les CDS Views avec des paramètres sont un moyen puissant de personnaliser les données dans SAP. En permettant aux utilisateurs de fournir des valeurs spécifiques, vous pouvez rendre vos CDS Views beaucoup plus dynamiques et utiles pour les analyses.
+
+## Exemple d'utilisation
+
+Voici un petit exemple d'utilisation de CDS Views avec des paramètres dans des requêtes ABAP:
+
 ```abap
-SELECT * FROM my_view WHERE field = $parameters.my_param;
+DATA(lo_view) = NEW cl_abap_sql_view( name = 'ZCDS_View_Parameters' ).
+DATA(lt_results) = lo_view->execute( p_param1 = 100 ).
+" Traitez les résultats comme nécessaire
 ```
-
-## Filtering with Parameters
-Different filtering techniques include:
-- **Simple Comparison**: Equality checks for parameter values.
-- **LIKE Patterns**: Use to match patterns in strings.
-- **BETWEEN**: For range conditions.
-
-### Filtering with IN and Lists
-You can filter records using a set of values as follows:
-```abap
-WHERE id IN $parameters.id_list;
-```
-
-## Parameters with Dates and Date Ranges
-Filter records based on date parameters to handle dynamic date selections effectively.
-
-## Optional Parameters Using COALESCE and CASE
-Utilize COALESCE to provide defaults for optional parameters:
-```abap
-SELECT * FROM my_view WHERE field = COALESCE($parameters.optional_param, default_value);
-```
-
-## JOINs with Parameters
-You can perform JOIN operations based on parameter values to link related data efficiently, allowing for dynamic querying.
-
-## Aggregations with Parameters
-Parameters can also influence the aggregation of data, allowing for flexible reporting and summarization.
-
-## Expressions with Parameters
-Use expressions in conjunction with parameters to generate calculated fields dynamically.
-
-## Real-World Use Cases
-1. **Payroll Report**: Filter employee data by specific criteria such as department and employment status.
-2. **Employee Search**: Use multiple parameters to refine searches for HR needs.
-3. **Analytics Dashboard**: Create insights based on user-selected parameters.
-
-## Best Practices
-- Define clear and concise parameter names.
-- Ensure data types for parameters match the underlying fields.
-- Handle default values appropriately.
-
-## Troubleshooting Common Issues
-- **Parameter Not Passed**: Ensure to check the calling application for proper parameter passing.
-- **Data Type Mismatches**: Validate data types to avoid runtime errors.
-- **Performance Issues**: Optimize CDS Views to handle parameterized queries efficiently.
